@@ -13,7 +13,7 @@ import {
   SubmissionStatus,
 } from '../../src/modules/analytics/entities/submission.entity';
 import { Payout } from '../../src/modules/analytics/entities/payout.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../src/modules/users/entities/user.entity';
 
 describe('Analytics (e2e)', () => {
   let app: INestApplication;

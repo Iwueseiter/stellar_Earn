@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { Quest } from './quest.entity';
 import { Payout } from './payout.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 export enum SubmissionStatus {
   PENDING = 'Pending',

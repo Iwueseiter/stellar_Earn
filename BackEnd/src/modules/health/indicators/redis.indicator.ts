@@ -1,24 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import {
   HealthIndicatorResult,
-  HealthIndicatorService,
+  HealthIndicator,
 } from '@nestjs/terminus';
 import { ConfigService } from '@nestjs/config';
 import { createClient } from 'redis';
 
 @Injectable()
-export class RedisIndicator {
+export class RedisIndicator extends HealthIndicator {
   constructor(
-    private readonly healthIndicatorService: HealthIndicatorService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    super();
+  }
 
   async isHealthy(key: string): Promise<HealthIndicatorResult> {
-    const indicator = this.healthIndicatorService.check(key);
     const cacheType = this.configService.get<string>('CACHE_TYPE', 'memory');
 
     if (cacheType !== 'redis') {
-      return indicator.up({ note: 'skipped (CACHE_TYPE is not redis)' });
+      return this.getStatus(key, true, { note: 'skipped (CACHE_TYPE is not redis)' });
     }
 
     const client = createClient({
@@ -34,9 +34,9 @@ export class RedisIndicator {
     try {
       await client.connect();
       await client.ping();
-      return indicator.up();
+      return this.getStatus(key, true);
     } catch (error) {
-      return indicator.down({ message: (error as Error).message });
+      return this.getStatus(key, false, { message: (error as Error).message });
     } finally {
       await client.disconnect().catch(() => undefined);
     }

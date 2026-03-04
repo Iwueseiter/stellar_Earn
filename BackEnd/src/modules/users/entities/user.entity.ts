@@ -1,5 +1,3 @@
-import { Quest } from 'src/modules/quests/entities/quest.entity';
-import { Submission } from 'src/modules/submissions/entities/submission.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -113,11 +111,9 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   lastSyncedAt: Date;
 
-  @OneToMany(() => Submission, (submission) => submission.user)
-  submissions: Submission[];
-
-  @OneToMany(() => Quest, (quest) => quest.creator)
-  createdQuests: Quest[];
+  // Relations (using type references to avoid circular imports)
+  submissions: any[];
+  createdQuests: any[];
 
   // Helper methods
   calculateLevel(): number {

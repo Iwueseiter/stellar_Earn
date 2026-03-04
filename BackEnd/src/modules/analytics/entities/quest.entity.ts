@@ -9,7 +9,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Submission } from './submission.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 export enum QuestStatus {
   ACTIVE = 'Active',

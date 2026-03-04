@@ -129,9 +129,9 @@ export class CacheService {
   }
 
   /**
-   * Return current cache statistics.
+   * Get cache statistics.
    */
-  getStats(): CacheStats {
+  getStats(key?: string): CacheStats {
     const total = this.hits + this.misses;
     return {
       hits: this.hits,
@@ -139,6 +139,38 @@ export class CacheService {
       hitRate: total > 0 ? Math.round((this.hits / total) * 10000) / 100 : 0,
       keys: total,
     };
+  }
+
+  /**
+   * Clear all cache entries.
+   */
+  async clear(): Promise<void> {
+    try {
+      await (this.cacheManager as any).reset();
+      this.logger.log('Cache cleared');
+    } catch (err) {
+      this.logger.warn(`Cache clear error: ${err.message}`);
+    }
+  }
+
+  /**
+   * Delete keys matching a pattern.
+   */
+  async deletePattern(pattern: string): Promise<void> {
+    try {
+      const store = (this.cacheManager as any).store;
+      if (store && typeof store.keys === 'function') {
+        const keys: string[] = await store.keys(pattern);
+        if (keys.length > 0) {
+          await Promise.all(keys.map((k) => this.cacheManager.del(k)));
+          this.logger.log(`Deleted ${keys.length} keys matching "${pattern}"`);
+        }
+      } else {
+        this.logger.warn('Cache store does not support key scanning; skipping pattern deletion.');
+      }
+    } catch (err) {
+      this.logger.warn(`Cache deletePattern error for "${pattern}": ${err.message}`);
+    }
   }
 
   /**
