@@ -5,6 +5,8 @@ use soroban_sdk::{contract, contractimpl, Address, BytesN, Env, Symbol};
 mod errors;
 mod escrow;
 mod init;
+mod admin;
+mod upgrade;
 mod payout;
 mod quest;
 mod reputation;
@@ -226,5 +228,25 @@ impl EarnQuestContract {
     /// Cancel a quest (creator only). Sets status to Cancelled, allowing escrow withdrawal.
     pub fn cancel_quest(env: Env, quest_id: Symbol, creator: Address) -> Result<(), Error> {
         quest::cancel_quest(&env, &quest_id, &creator)
+    }
+
+    // ── Upgrade and Migration ──
+
+    /// Upgrade the contract's WASM code and run any outstanding migrations (Admin only).
+    pub fn upgrade_contract(env: Env, admin: Address, new_wasm_hash: BytesN<32>) -> Result<(), Error> {
+        admin.require_auth();
+        admin::upgrade_contract(&env, admin, new_wasm_hash)
+    }
+
+    /// Manually trigger data migrations to the latest version (Admin only).
+    pub fn trigger_migration(env: Env, admin: Address) -> Result<(), Error> {
+        admin.require_auth();
+        admin::trigger_migration(&env, admin)
+    }
+
+    /// Roll back data to a specific version (Admin only).
+    pub fn trigger_rollback(env: Env, admin: Address, target_version: u32) -> Result<(), Error> {
+        admin.require_auth();
+        admin::trigger_rollback(&env, admin, target_version)
     }
 }
