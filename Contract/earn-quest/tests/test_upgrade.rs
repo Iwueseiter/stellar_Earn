@@ -98,14 +98,15 @@ fn test_upgrade_contract_logic() {
         EarnQuestContractClient::new(&env, &env.register_contract(None, EarnQuestContract));
 
     let admin = Address::generate(&env);
-    let dummy_wasm_hash = BytesN::from_array(&env, &[1u8; 32]);
+    
+    // Create a dummy WASM (minimal WebAssembly magic bytes)
+    let dummy_wasm = [0, 97, 115, 109, 1, 0, 0, 0];
+    let dummy_wasm_hash = env.deployer().upload_contract_wasm(soroban_sdk::Bytes::from_array(&env, &dummy_wasm));
 
     // Initialize
     client.initialize(&admin);
 
     // Upgrade contract (this calls update_current_contract_wasm and migrate)
-    // Note: In tests, update_current_contract_wasm doesn't actually change the code
-    // but the function call should still succeed.
     client.upgrade_contract(&admin, &dummy_wasm_hash);
     
     assert_eq!(client.get_version(), 1);

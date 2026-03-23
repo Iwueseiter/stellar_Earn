@@ -71,6 +71,7 @@ pub fn rollback(env: &Env, target_version: u32) -> Result<(), Error> {
 
 fn run_rollback(env: &Env, version: u32) -> Result<(), Error> {
     match version {
+        1 => Ok(()), // v1 is the base version, rollback to it is a no-op
         2 => rollback_v2_to_v1(env),
         _ => Err(Error::InvalidVersionNumber),
     }
