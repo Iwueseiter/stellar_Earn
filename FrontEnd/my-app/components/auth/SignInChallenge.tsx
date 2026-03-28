@@ -21,51 +21,75 @@ export function SignInChallenge({
 }: SignInChallengeProps) {
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#33C5E0]/10 text-[#33C5E0]">
-        <Shield className="h-8 w-8" />
-      </div>
+      <motion.div 
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-[#33C5E0]/10 text-[#33C5E0] shadow-inner shadow-[#33C5E0]/5"
+      >
+        <Shield className="h-10 w-10" />
+      </motion.div>
 
-      <h2 className="mb-2 text-2xl font-semibold text-zinc-900 dark:text-white">
-        Secure Sign-In
+      <h2 className="mb-2 text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+        Verify Ownership
       </h2>
-      <p className="mb-6 text-sm text-zinc-500 dark:text-[#92A5A8]">
-        To verify your identity, please sign this secure challenge with your
-        wallet: <span className="font-mono text-[#33C5E0] line-break-anywhere">{stellarAddress.slice(0, 6)}...{stellarAddress.slice(-6)}</span>
+      <p className="mb-6 text-sm leading-relaxed text-zinc-500 dark:text-[#92A5A8]">
+        To finalize your secure sign-in, please sign this unique challenge with your wallet:
+        <br />
+        <span className="mt-1 inline-block font-mono text-xs font-bold text-[#33C5E0] bg-[#33C5E0]/5 px-2 py-0.5 rounded-md">
+          {stellarAddress.slice(0, 6)}...{stellarAddress.slice(-6)}
+        </span>
       </p>
 
-      <div className="mb-6 w-full rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left dark:border-[#2A3338] dark:bg-[#0F1621]">
-        <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-[#5D6B6E]">
-          Message to Sign
+      <motion.div 
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="mb-6 w-full overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50/50 p-5 text-left dark:border-[#2A3338] dark:bg-[#0F1621]/50"
+      >
+        <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-[#5D6B6E]">
+          Authentication Message
         </p>
-        <p className="font-mono text-xs break-all text-zinc-700 dark:text-zinc-300">
+        <p className="font-mono text-xs leading-relaxed break-all text-zinc-600 dark:text-zinc-400">
           {challenge}
         </p>
-      </div>
+      </motion.div>
 
       {error && (
-        <div className="mb-4 flex w-full items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-left">
-          <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
-          <span className="text-xs text-red-400">{error}</span>
-        </div>
+        <motion.div 
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="mb-4 flex w-full items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-left"
+        >
+          <AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
+          <span className="text-xs leading-tight text-red-500/90">{error}</span>
+        </motion.div>
       )}
 
       <button
         type="button"
         onClick={onSign}
         disabled={isLoading}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#33C5E0] py-3 font-semibold text-black transition-all hover:bg-[#33C5E0]/90 disabled:cursor-not-allowed disabled:opacity-50"
+        className="group relative w-full overflow-hidden rounded-2xl bg-[#33C5E0] py-4 font-bold text-black transition-all hover:bg-[#33C5E0]/90 hover:shadow-[0_0_20px_rgba(51,197,224,0.3)] disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {isLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
-        ) : (
-          <Key className="h-5 w-5" />
-        )}
-        <span>{isLoading ? "Signing..." : "Sign & Verify"}</span>
+        <div className="relative z-10 flex items-center justify-center gap-2">
+          {isLoading ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Authenticating...</span>
+            </>
+          ) : (
+            <>
+              <Key className="h-5 w-5" />
+              <span>Sign & Verify</span>
+            </>
+          )}
+        </div>
       </button>
 
-      <p className="mt-4 text-[10px] text-zinc-400 dark:text-[#5D6B6E]">
-        Signing this message doesn't cost any gas or affect your funds. It only
-        proves you own this address.
+      <p className="mt-6 text-[10px] leading-relaxed text-zinc-400 dark:text-[#5D6B6E]">
+        Signing is a secure, off-chain action that proves your identity. 
+        <br />
+        It does not involve any transaction or fees.
       </p>
     </div>
   );

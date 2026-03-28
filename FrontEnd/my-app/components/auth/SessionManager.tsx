@@ -22,7 +22,7 @@ export function SessionManager() {
 
   // Constants for session management
   const REFRESH_BEFORE_EXPIRY = 60 * 1000; // 1 minute before access token expiry
-  const ACCESS_TOKEN_LIFETIME = 15 * 60 * 1000; // 15 minutes (default from backend)
+  const DEFAULT_ACCESS_TOKEN_LIFETIME = 15 * 60 * 1000; // 15 minutes fallback
   const WARNING_BEFORE_LOGOUT = 2 * 60 * 1000; // 2 minutes before refresh token/session might end
 
   useEffect(() => {
@@ -33,21 +33,26 @@ export function SessionManager() {
       if (refreshInterval.current) clearInterval(refreshInterval.current);
       if (warningTimeout.current) clearTimeout(warningTimeout.current);
 
-      // Simple periodic refresh every 14 minutes (just before 15 min expiry)
+      // Proactive refresh logic
+      const tokens = tokenManager.getAccessToken() ? { 
+        accessToken: tokenManager.getAccessToken()!, 
+        refreshToken: tokenManager.getRefreshToken()!,
+        expiresIn: Number(localStorage.getItem('tokenExpiresIn')) || DEFAULT_ACCESS_TOKEN_LIFETIME
+      } : null;
+
+      const lifetime = tokens?.expiresIn || DEFAULT_ACCESS_TOKEN_LIFETIME;
+      const refreshTime = Math.max(lifetime - REFRESH_BEFORE_EXPIRY, 30000); // At least 30s
+
       refreshInterval.current = setInterval(async () => {
         setIsRefreshing(true);
         try {
-          // The API client automatically handles refreshing the token if it receives a 401,
-          // but proactive refreshing is better for UX.
-          // refreshProfile() will call getAuthProfile(), which will trigger the 401 interceptor
-          // if the token is expired, or we can explicitly call refresh API.
           await refreshProfile();
         } catch (error) {
           console.error("Proactive session refresh failed:", error);
         } finally {
           setIsRefreshing(false);
         }
-      }, ACCESS_TOKEN_LIFETIME - REFRESH_BEFORE_EXPIRY);
+      }, refreshTime);
 
       // Set a warning if no activity or nearing session end
       // (This is a simplified version, real implementations might parse JWT exp)

@@ -40,6 +40,7 @@ const INITIAL_RETRY_DELAY_MS = 1_000;
 /** Keys used to persist auth tokens in localStorage / sessionStorage */
 const ACCESS_TOKEN_KEY = 'authToken'; // keep backward compat with existing code
 const REFRESH_TOKEN_KEY = 'refreshToken';
+const TOKEN_EXPIRES_IN_KEY = 'tokenExpiresIn';
 
 function isClient(): boolean {
   return typeof window !== 'undefined';
@@ -66,14 +67,17 @@ export const tokenManager = {
     if (!isClient()) return;
     localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
     localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+    localStorage.setItem(TOKEN_EXPIRES_IN_KEY, tokens.expiresIn.toString());
   },
 
   clearTokens(): void {
     if (!isClient()) return;
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_EXPIRES_IN_KEY);
     sessionStorage.removeItem(ACCESS_TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_EXPIRES_IN_KEY);
   },
 };
 
