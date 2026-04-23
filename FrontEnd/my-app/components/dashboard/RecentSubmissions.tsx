@@ -1,6 +1,7 @@
 'use client';
 
-import type { Submission } from '@/lib/types/dashboard';
+import type { Submission } from '@/lib/types/submission';
+import type { SubmissionStatus } from '@/lib/types/api.types';
 
 interface RecentSubmissionsProps {
   submissions: Submission[];
