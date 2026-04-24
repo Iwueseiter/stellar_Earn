@@ -4,20 +4,24 @@ import { SelectQueryBuilder, DeleteResult } from 'typeorm';
  * Soft delete utility functions for TypeORM entities
  */
 export class SoftDeleteUtil<T> {
-  constructor(private queryBuilder: SelectQueryBuilder<T>) {}
+  private alias: string;
+
+  constructor(private queryBuilder: SelectQueryBuilder<T>) {
+    this.alias = this.queryBuilder.alias;
+  }
 
   /**
    * Adds soft delete filter to exclude deleted records
    */
   excludeDeleted(): SelectQueryBuilder<T> {
-    return this.queryBuilder.andWhere(`${this.queryBuilder.alias}.deletedAt IS NULL`);
+    return this.queryBuilder.andWhere(`${this.alias}.deletedAt IS NULL`);
   }
 
   /**
    * Adds soft delete filter to include only deleted records
    */
   onlyDeleted(): SelectQueryBuilder<T> {
-    return this.queryBuilder.andWhere(`${this.queryBuilder.alias}.deletedAt IS NOT NULL`);
+    return this.queryBuilder.andWhere(`${this.alias}.deletedAt IS NOT NULL`);
   }
 
   /**
@@ -34,7 +38,7 @@ export class SoftDeleteUtil<T> {
     return this.queryBuilder
       .update()
       .set({ deletedAt: new Date() })
-      .where(`${this.queryBuilder.alias}.id = :id`, { id })
+      .where(`${this.alias}.id = :id`, { id })
       .execute();
   }
 
@@ -45,7 +49,7 @@ export class SoftDeleteUtil<T> {
     return this.queryBuilder
       .update()
       .set({ deletedAt: null })
-      .where(`${this.queryBuilder.alias}.id = :id`, { id })
+      .where(`${this.alias}.id = :id`, { id })
       .execute();
   }
 
@@ -54,7 +58,7 @@ export class SoftDeleteUtil<T> {
    */
   async softDeleteBy(conditions: Record<string, any>): Promise<DeleteResult> {
     const whereConditions = Object.keys(conditions).map(
-      key => `${this.queryBuilder.alias}.${key} = :${key}`
+      key => `${this.alias}.${key} = :${key}`
     ).join(' AND ');
 
     return this.queryBuilder
@@ -69,7 +73,7 @@ export class SoftDeleteUtil<T> {
    */
   async restoreBy(conditions: Record<string, any>): Promise<DeleteResult> {
     const whereConditions = Object.keys(conditions).map(
-      key => `${this.queryBuilder.alias}.${key} = :${key}`
+      key => `${this.alias}.${key} = :${key}`
     ).join(' AND ');
 
     return this.queryBuilder
